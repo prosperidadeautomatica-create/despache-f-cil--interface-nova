@@ -1,0 +1,416 @@
+
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despache Fácil | Hub de Fretes Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand: #3b82f6;
+            --brand-dark: #1e3a8a;
+            --bg-page: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-page);
+            color: #1e293b;
+        }
+
+        .nav-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item:hover {
+            background-color: #f1f5f9;
+            color: var(--brand);
+        }
+
+        .nav-active {
+            background-color: #eff6ff;
+            color: var(--brand);
+            border-right: 3px solid var(--brand);
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .carrier-card {
+            transition: transform 0.2s;
+        }
+
+        .carrier-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        /* Custom UI for scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Lateral Menu (Sidebar) -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex">
+        <div class="p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-box-open text-xl"></i>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tight">Despache<span class="text-blue-600">Fácil</span></h1>
+            </div>
+        </div>
+
+        <nav class="flex-grow py-4">
+            <div class="px-6 mb-4">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Painel de Controlo</p>
+            </div>
+            <a href="#" onclick="showSection('dashboard')" id="link-dashboard" class="nav-item nav-active flex items-center gap-4 px-8 py-3 text-sm font-semibold">
+                <i class="fa-solid fa-grip-vertical"></i> Dashboard
+            </a>
+            <a href="#" onclick="showSection('cotacao')" id="link-cotacao" class="nav-item flex items-center gap-4 px-8 py-3 text-sm font-semibold text-slate-500">
+                <i class="fa-solid fa-calculator"></i> Nova Cotação
+            </a>
+            <a href="#" onclick="showSection('envios')" id="link-envios" class="nav-item flex items-center gap-4 px-8 py-3 text-sm font-semibold text-slate-500">
+                <i class="fa-solid fa-list-check"></i> Meus Envios
+            </a>
+            <a href="#" onclick="showSection('financeiro')" id="link-financeiro" class="nav-item flex items-center gap-4 px-8 py-3 text-sm font-semibold text-slate-500">
+                <i class="fa-solid fa-receipt"></i> Financeiro
+            </a>
+            <a href="#" class="nav-item flex items-center gap-4 px-8 py-3 text-sm font-semibold text-slate-500">
+                <i class="fa-solid fa-gear"></i> Definições
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-slate-100">
+            <div class="bg-slate-50 rounded-2xl p-4">
+                <p class="text-xs text-slate-500 mb-1">Saldo em Carteira</p>
+                <p class="text-lg font-bold text-slate-900">R$ 1.450,20</p>
+                <button class="w-full mt-3 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition shadow-md shadow-blue-100">Adicionar Saldo</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col overflow-hidden">
+        
+        <!-- Top Navigation -->
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-10">
+            <h2 id="section-title" class="text-xl font-bold text-slate-800">Visão Geral</h2>
+            <div class="flex items-center gap-6">
+                <div class="relative hidden sm:block">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="Rastrear objeto..." class="bg-slate-50 border border-slate-200 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-64 transition">
+                </div>
+                <button class="relative text-slate-500 hover:text-blue-600 transition">
+                    <i class="fa-regular fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+                </button>
+                <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold">José Freelancer</p>
+                        <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Conta Premium</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Jose+Freelancer&background=0D8ABC&color=fff" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm" alt="User">
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic View Content -->
+        <div id="content-view" class="p-10 overflow-y-auto">
+            
+            <!-- SECTION: DASHBOARD -->
+            <div id="section-dashboard" class="space-y-8 animate-in fade-in duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600"><i class="fa-solid fa-paper-plane"></i></div>
+                            <span class="text-xs font-bold text-emerald-500">+12%</span>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Envios este mês</p>
+                        <h3 class="text-3xl font-black mt-1">248</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Em trânsito</p>
+                        <h3 class="text-3xl font-black mt-1">14</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600"><i class="fa-solid fa-piggy-bank"></i></div>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Economia Gerada</p>
+                        <h3 class="text-3xl font-black mt-1 text-emerald-600">R$ 950</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl card-shadow border border-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600"><i class="fa-solid fa-wallet"></i></div>
+                        </div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Crédito Disponível</p>
+                        <h3 class="text-3xl font-black mt-1">R$ 1.450</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-8 rounded-3xl card-shadow">
+                        <div class="flex items-center justify-between mb-8">
+                            <h4 class="font-bold text-slate-800">Relatório de Envios</h4>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1 text-xs font-bold bg-blue-100 text-blue-600 rounded-lg">Mensal</button>
+                                <button class="px-3 py-1 text-xs font-bold text-slate-400">Anual</button>
+                            </div>
+                        </div>
+                        <canvas id="shipmentChart" height="120"></canvas>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl card-shadow">
+                        <h4 class="font-bold text-slate-800 mb-6">Transportadoras Favoritas</h4>
+                        <canvas id="carrierPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: COTAÇÃO -->
+            <div id="section-cotacao" class="hidden space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                <div class="max-w-4xl mx-auto bg-white p-10 rounded-[2.5rem] card-shadow border border-slate-100">
+                    <div class="flex items-center gap-4 mb-10">
+                        <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl shadow-blue-200">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-800 tracking-tight">Cotação Multimodal</h3>
+                            <p class="text-slate-500 text-sm font-medium">Calcule e compare entre Correios e Jadlog instantaneamente.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Origem</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-location-arrow absolute left-4 top-1/2 -translate-y-1/2 text-blue-500"></i>
+                                <input type="text" placeholder="CEP de Origem" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500/20 outline-none transition">
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest">Destino</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-map-pin absolute left-4 top-1/2 -translate-y-1/2 text-rose-500"></i>
+                                <input type="text" placeholder="CEP de Destino" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500/20 outline-none transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Peso (kg)</label>
+                            <input type="number" value="1" class="w-full bg-transparent font-bold text-slate-800 outline-none">
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Alt (cm)</label>
+                            <input type="number" value="10" class="w-full bg-transparent font-bold text-slate-800 outline-none">
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Larg (cm)</label>
+                            <input type="number" value="20" class="w-full bg-transparent font-bold text-slate-800 outline-none">
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Comp (cm)</label>
+                            <input type="number" value="20" class="w-full bg-transparent font-bold text-slate-800 outline-none">
+                        </div>
+                    </div>
+
+                    <button onclick="simulateQuote()" class="w-full btn-gradient text-white font-extrabold py-5 rounded-2xl text-lg shadow-xl shadow-blue-200 hover:scale-[1.01] transition active:scale-[0.99]">
+                        CALCULAR MELHOR FRETE <i class="fa-solid fa-bolt ml-2"></i>
+                    </button>
+
+                    <!-- Quote Results Table -->
+                    <div id="quote-results" class="hidden mt-12 space-y-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h5 class="font-bold text-slate-800">Resultados Disponíveis</h5>
+                            <span class="text-xs font-bold text-slate-400">Preços aproximados</span>
+                        </div>
+
+                        <!-- Jadlog Option -->
+                        <div class="carrier-card flex items-center justify-between p-6 bg-white border-2 border-slate-100 rounded-3xl hover:border-blue-500 transition cursor-pointer">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center text-white font-black italic">JAD</div>
+                                <div>
+                                    <h6 class="font-bold text-slate-800">Jadlog (.Com)</h6>
+                                    <p class="text-xs text-slate-500 font-medium">Prazo estimado: 5 dias úteis</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-blue-600">R$ 14,92</p>
+                                <span class="bg-emerald-100 text-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-bold">ECONÓMICO</span>
+                            </div>
+                        </div>
+
+                        <!-- Correios Option -->
+                        <div class="carrier-card flex items-center justify-between p-6 bg-white border-2 border-slate-100 rounded-3xl hover:border-blue-500 transition cursor-pointer">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center text-blue-800 font-black italic text-xs">CORREIOS</div>
+                                <div>
+                                    <h6 class="font-bold text-slate-800">SEDEX</h6>
+                                    <p class="text-xs text-slate-500 font-medium">Prazo estimado: 2 dias úteis</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-slate-800">R$ 28,40</p>
+                                <span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">RÁPIDO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: FINANCEIRO -->
+            <div id="section-financeiro" class="hidden space-y-8 animate-in fade-in duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2 bg-white p-8 rounded-3xl card-shadow">
+                        <h4 class="font-bold text-slate-800 mb-6">Histórico de Transações</h4>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-arrow-up"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold">Envio SEDEX #DF-4032</p>
+                                        <p class="text-xs text-slate-400">Hoje às 10:24</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-rose-600">- R$ 28,40</p>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-arrow-down"></i></div>
+                                    <div>
+                                        <p class="text-sm font-bold">Recarga via PIX</p>
+                                        <p class="text-xs text-slate-400">Ontem às 18:45</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-emerald-600">+ R$ 500,00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-blue-600 p-8 rounded-[2.5rem] card-shadow text-white">
+                        <h4 class="font-bold mb-2">Cartão Despache Fácil</h4>
+                        <p class="text-[10px] opacity-70 mb-8 uppercase tracking-widest">Nível Platinum</p>
+                        <div class="flex flex-col gap-6">
+                            <div>
+                                <p class="text-xs opacity-60">Número do Cartão</p>
+                                <p class="text-lg font-bold tracking-[0.2em]">**** **** **** 8820</p>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-xs opacity-60">Titular</p>
+                                    <p class="font-bold">JOSÉ FREELANCER</p>
+                                </div>
+                                <i class="fa-brands fa-cc-visa text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Tab Management
+        function showSection(sectionId) {
+            // Update Title
+            const titles = {
+                'dashboard': 'Visão Geral',
+                'cotacao': 'Nova Cotação de Frete',
+                'envios': 'Gestão de Envios',
+                'financeiro': 'Controlo Financeiro'
+            };
+            document.getElementById('section-title').innerText = titles[sectionId];
+
+            // Toggle visibility
+            const sections = ['dashboard', 'cotacao', 'financeiro'];
+            sections.forEach(s => {
+                const el = document.getElementById('section-' + s);
+                if (el) el.classList.add('hidden');
+                
+                const link = document.getElementById('link-' + s);
+                if (link) {
+                    link.classList.remove('nav-active');
+                    link.classList.add('text-slate-500');
+                }
+            });
+
+            document.getElementById('section-' + sectionId).classList.remove('hidden');
+            document.getElementById('link-' + sectionId).classList.add('nav-active');
+            document.getElementById('link-' + sectionId).classList.remove('text-slate-500');
+        }
+
+        // Simulate Quote Results
+        function simulateQuote() {
+            const results = document.getElementById('quote-results');
+            results.classList.remove('hidden');
+            results.classList.add('animate-in', 'slide-in-from-top-4');
+        }
+
+        // Charts Initialization
+        window.onload = function() {
+            // Main Line Chart
+            const ctxLine = document.getElementById('shipmentChart').getContext('2d');
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Envios Totais',
+                        data: [150, 230, 180, 290, 250, 320],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { border: { display: false }, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Outfit' } } },
+                        x: { grid: { display: false }, ticks: { font: { family: 'Outfit' } } }
+                    }
+                }
+            });
+
+            // Carrier Pie Chart
+            const ctxPie = document.getElementById('carrierPieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correios', 'Jadlog', 'Total Express'],
+                    datasets: [{
+                        data: [60, 30, 10],
+                        backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { family: 'Outfit', weight: 'bold' } } } }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
